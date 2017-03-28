@@ -87,7 +87,7 @@ def create_matrix(news_list):
 
 
 def filterDictionary(news_list, dictionary):
-    del_word = list()
+    del_word = set()
 
     # delete words that have freq < 2 in each of all news
     for key in dictionary.keys():
@@ -96,7 +96,7 @@ def filterDictionary(news_list, dictionary):
             if dictionary[key][i] < 2:
                 ct = ct + 1
         if ct == len(news_list):
-            del_word.append(key)
+            del_word.add(key)
 
     # delete words that have total freq < 5 in all news
     for key in dictionary.keys():
@@ -104,7 +104,7 @@ def filterDictionary(news_list, dictionary):
         for i in range(len(news_list)):
             count = count + dictionary[key][i]
         if count < 5:
-            del_word.append(key)
+            del_word.add(key)
 
     # delete words that have freq > 0 in only 1 news
     for key in dictionary.keys():
@@ -115,13 +115,28 @@ def filterDictionary(news_list, dictionary):
                     count = count + dictionary[key][k]
                 for k in range(i + 1, len(news_list)):
                     count = count + dictionary[key][k]
-            if count == 0: del_word.append(key)
+            if count == 0:
+                del_word.add(key)
 
     for key in del_word:
         del dictionary[key]
-
+    print(del_word)
     return dictionary
 
+def write_matrix(news_list, dictionary):
+    outpf = open("freq_mat.csv", "w")
+
+    #write headers
+    outpf.write("Terms" + ',')
+    for news in news_list:
+        outpf.write("News #" + news[0] + ',')
+    outpf.write('\n')
+
+    #write body
+    for key in dictionary.keys():
+        freq_list = dictionary[key]
+        freq_string = str(freq_list).strip('[]')
+        outpf.write(key + ',' + freq_string + '\n')
 
 if __name__ == '__main__':
     #inpf = open("test.txt", encoding="utf8")
@@ -138,5 +153,7 @@ if __name__ == '__main__':
     raw_matrix = create_matrix(news_list)
 
     ftd = filterDictionary(news_list, raw_matrix)
-    for k in ftd.keys():
-        print(k, ftd[k])
+    #for k in ftd.keys():
+    #   print(k, ftd[k])
+
+    write_matrix(news_list, ftd)
